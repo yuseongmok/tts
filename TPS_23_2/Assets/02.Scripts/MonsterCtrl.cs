@@ -38,6 +38,27 @@ public class MonsterCtrl : MonoBehaviour
     // 몬스터 생명 변수
     private int hp = 100;
     // 스크립트가 활성화될 때마다 호출되는 함수
+
+    void Update()
+    {
+        // 목적지까지 남은 거리로 회전 여부 판단
+        if (agent.remainingDistance >= 2.0f)
+        {
+            // 에이전트의 이동 방향
+            Vector3 direction = agent.desiredVelocity;
+            if (direction.sqrMagnitude >= 0.1f * 0.1f)
+            {
+                // 회전 각도(쿼터니언) 산출
+                Quaternion rot = Quaternion.LookRotation(direction);
+                // 구면 선형보간 함수로 부드러운 회전 처리
+                monsterTr.rotation = Quaternion.Slerp(monsterTr.rotation,
+
+                rot,
+                Time.deltaTime * 10.0f);
+
+            }
+        }
+    }
     void OnEnable()
     {
         // 이벤트 발생 시 수행할 함수 연결
@@ -62,6 +83,8 @@ public class MonsterCtrl : MonoBehaviour
         playerTr = GameObject.FindWithTag("PLAYER").GetComponent<Transform>();
         // NavMeshAgent 컴포넌트 할당
         agent = GetComponent<NavMeshAgent>();
+        // NavMeshAgent의 자동 회전 기능 비활성화
+        agent.updateRotation = false;
         // Animator 컴포넌트 할당
         anim = GetComponent<Animator>();
         // BloodSprayEffect 프리팹 로드
